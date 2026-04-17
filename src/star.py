@@ -1,13 +1,7 @@
-import requests
 import pandas as pd
 import os
 
-
 def _convert_french_date(date_str):
-    """
-    Convertit une date du type chaine de caractères '1 janvier 2025' en datetime
-    """
-    
     mois_map = {
         "janvier": "01", "février": "02", "mars": "03",
         "avril": "04", "mai": "05", "juin": "06",
@@ -21,44 +15,32 @@ def _convert_french_date(date_str):
     return pd.to_datetime(date_str, format="%d %m %Y", errors="coerce")
 
 
-def get_star_data(start_date="2025-01-01", end_date="2025-12-31"):
+def get_star_data():
     """
-    Récupère via API les données de fréquentation STAR (réseau de transports à Rennes)
-    et retourne les fréquentations journalières
+    Version en téléchargement CSV direct
+    Nous avions initialement utilisé l’API STAR, mais face aux limitations de requêtes, 
+    nous avons opté pour le téléchargement direct CSV afin d’assurer la reproductibilité.
     """
     
     file_path = "data/star.csv"
     
-    # Chargement si déjà téléchargé via api
     if os.path.exists(file_path):
-        df = pd.read_csv(file_path, parse_dates=["date"])
-        return df
-
-    # si le fichier n'existe pas : téléchargement via l'api 
-    #ou si premiere utilisation
-    url = "https://data.explore.star.fr/api/explore/v2.1/catalog/datasets/tco-billettique-star-frequentation-agregee-td/records"
+        return pd.read_csv(file_path, parse_dates=["date"])
     
-    params = {
-        "limit": 10000,
-        "refine": f"date>='{start_date}' AND date<='{end_date}'"
-    }
-
-    response = requests.get(url, params=params)
-    data = response.json()["results"]
+    url = "https://data.explore.star.fr/explore/dataset/tco-billettique-star-frequentation-agregee-td/download/?format=csv&timezone=Europe/Berlin&use_labels_for_header=true"
     
-    df = pd.DataFrame(data)
+    df = pd.read_csv(url)
     
-    df["date"] = df["date"].apply(_convert_french_date)
+    df["Date"] = df["Date"].apply(_convert_french_date)
+    df.rename(columns={"Date": "date"}, inplace=True)
     
-    if df["date"].isna().sum() > 0:
-        print("Attention : certaines dates-textes n'ont pas été converties au format date")
-    
-    df_daily = df.groupby("date")["frequentation"].sum().reset_index()
+    df_daily = df.groupby("date")["Frequentation"].sum().reset_index()
+    df_daily.rename(columns={"Frequentation": "frequentation"}, inplace=True)
     
     df_daily = df_daily.sort_values("date")
-
-    #sauvegarde
+    
     os.makedirs("data", exist_ok=True)
     df_daily.to_csv(file_path, index=False)
-
+    
+    
     return df_daily
