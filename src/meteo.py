@@ -3,31 +3,50 @@ import pandas as pd
 
 def get_meteo_data(start_date="2025-01-01", end_date="2025-12-31"):
     """
-    Récupère les données météo pour la ville de Rennes 
-    En particulier les données de température et métriques de précipitations
+    Récupère les données météo pour Rennes (température + précipitations)
+    en passant par les données hourly puis agrégation journalière
     """
     
-    # coordonnées géographiques Rennes
+    # coordonnées Rennes
     lat, lon = 48.1173, -1.6778
     
-    url = "https://api.open-meteo.com/v1/forecast"
+    url = "https://archive-api.open-meteo.com/v1/archive"
     
     params = {
         "latitude": lat,
         "longitude": lon,
         "start_date": start_date,
         "end_date": end_date,
-        "daily": "temperature_2m_mean,precipitation_sum",
+        "hourly": "temperature_2m,precipitation",
         "timezone": "Europe/Paris"
     }
     
     response = requests.get(url, params=params)
-    data = response.json()["daily"]
+    
+    if response.status_code != 200:
+        raise ValueError(f"Erreur API météo : {response.status_code}")
+    
+    json_data = response.json()
+    
+    if "hourly" not in json_data:
+        print("Réponse API météo :", json_data)
+        raise ValueError("Pas de données 'hourly' dans la réponse")
+    
+    data = json_data["hourly"]
     
     df = pd.DataFrame({
-        "date": pd.to_datetime(data["time"]),
-        "temperature": data["temperature_2m_mean"],
-        "precipitation": data["precipitation_sum"]
+        "datetime": pd.to_datetime(data["time"]),
+        "temperature": data["temperature_2m"],
+        "precipitation": data["precipitation"]
     })
     
-    return df
+    df["date"] = df["datetime"].dt.date
+    
+    df_daily = df.groupby("date").agg({
+        "temperature": "mean",
+        "precipitation": "sum"
+    }).reset_index()
+    
+    df_daily["date"] = pd.to_datetime(df_daily["date"])
+    
+    return df_daily
