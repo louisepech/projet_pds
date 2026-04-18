@@ -35,7 +35,7 @@ def get_star_data():
         "Régulières Métropolitaines": "frequentation_bus",
         "CHRONOSTAR":                 "frequentation_bus",
         "Régulières Urbaines":        "frequentation_bus",
-        "METRO":                      "frequentation_metro",
+        "Métro":                      "frequentation_metro",
         "Lignes Evènementielles":     "frequentation_bus_even",
         "Parcs-Relais":               "frequentation_pr",
     }
