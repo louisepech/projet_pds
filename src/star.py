@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 
+
 def _convert_french_date(date_str):
     mois_map = {
         "janvier": "01", "février": "02", "mars": "03",
@@ -17,30 +18,26 @@ def _convert_french_date(date_str):
 
 def get_star_data():
     """
-    Version en téléchargement CSV direct
-    Nous avions initialement utilisé l’API STAR, mais face aux limitations de requêtes, 
-    nous avons opté pour le téléchargement direct CSV afin d’assurer la reproductibilité.
+    Lecture du fichier, en local téléchargé
     """
     
-    file_path = "data/star.csv"
-    
-    if os.path.exists(file_path):
-        return pd.read_csv(file_path, parse_dates=["date"])
-    
-    url = "https://data.explore.star.fr/explore/dataset/tco-billettique-star-frequentation-agregee-td/download/?format=csv&timezone=Europe/Berlin&use_labels_for_header=true"
-    
-    df = pd.read_csv(url)
-    
-    df["Date"] = df["Date"].apply(_convert_french_date)
-    df.rename(columns={"Date": "date"}, inplace=True)
-    
+    raw_path = "data/star_raw.csv"
+    clean_path = "data/star.csv"
+
+    if os.path.exists(clean_path):
+        return pd.read_csv(clean_path, parse_dates=["date"])
+
+    df = pd.read_csv(raw_path, sep=";")
+
+    df["date"] = pd.to_datetime(df["date"])
+
     df_daily = df.groupby("date")["Frequentation"].sum().reset_index()
     df_daily.rename(columns={"Frequentation": "frequentation"}, inplace=True)
-    
+
     df_daily = df_daily.sort_values("date")
-    
+
     os.makedirs("data", exist_ok=True)
-    df_daily.to_csv(file_path, index=False)
-    
-    
+    df_daily.to_csv(clean_path, index=False)
+
     return df_daily
+
