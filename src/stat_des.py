@@ -25,18 +25,15 @@ def impute_carburant(df: pd.DataFrame) -> pd.DataFrame:
  
     df = df.copy()
  
-    # Résumé avant imputation
     print("Valeurs manquantes AVANT imputation :")
     print(df[fuel_cols].isnull().sum())
     print()
  
-    # Forward fill : propage la dernière valeur connue vers le bas
     df[fuel_cols] = df[fuel_cols].ffill()
  
-    # Backward fill : gère les éventuels NaN en tout début de série
+
     df[fuel_cols] = df[fuel_cols].bfill()
  
-    # Résumé après imputation
     print("Valeurs manquantes APRÈS imputation :")
     print(df[fuel_cols].isnull().sum())
  
@@ -45,7 +42,7 @@ def impute_carburant(df: pd.DataFrame) -> pd.DataFrame:
 
 def plot_correlation_heatmap(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Calcule et affiche la matrice de corrélations (Pearson) entre
+    Calcule et affiche la matrice de corrélations (de Pearson) entre
     les colonnes numériques du DataFrame sous forme de heatmap triangulaire.
 
     Paramètres
@@ -66,7 +63,6 @@ def plot_correlation_heatmap(df: pd.DataFrame) -> pd.DataFrame:
     cols = freq_cols + meteo_cols + fuel_cols
     corr = df[cols].corr()
 
-    # Masque triangle supérieur
     mask = np.triu(np.ones_like(corr, dtype=bool))
 
     fig, ax = plt.subplots(figsize=(14, 10))
@@ -96,7 +92,7 @@ def plot_top_correlations(
 ) -> None:
     """
     Affiche un bar chart des variables les plus corrélées
-    avec la colonne cible, triées par |r| décroissant.
+    avec la colonne cible, triées par r (le coefficient de corrélation de Pearson) décroissant.
 
     Paramètres
     ----------
@@ -122,8 +118,8 @@ def plot_top_correlations(
 
     fig, ax = plt.subplots(figsize=(8, 5))
     top.plot(kind='barh', ax=ax, color=colors, edgecolor='none')
-    ax.set_title(f'Top {top_n} corrélations |r| avec {target}', fontsize=12)
-    ax.set_xlabel('|r| de Pearson')
+    ax.set_title(f'Top {top_n} corrélations r avec {target}', fontsize=12)
+    ax.set_xlabel('r de Pearson')
     ax.axvline(0.3, color='gray', linestyle='--', linewidth=0.8, label='seuil 0.3')
     ax.legend(fontsize=9)
     plt.tight_layout()

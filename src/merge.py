@@ -4,7 +4,7 @@ from src.carburant import get_carburant_data
 
 def build_dataset():
     """
-    Construction de notre dataset final en fusionnant cex de star, météo et carburant
+    Construction de notre dataset final en fusionnant ceux de star, météo et carburant
     """
     
     star = get_star_data()

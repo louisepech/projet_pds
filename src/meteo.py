@@ -4,10 +4,10 @@ import pandas as pd
 def get_meteo_data(start_date="2025-01-01", end_date="2025-12-31"):
     """
     Récupère les données météo pour Rennes (température + précipitations)
-    en passant par les données hourly puis agrégation journalière
+    en passant par les données heure par heure puis agrégation journalière
     """
     
-    # coordonnées Rennes
+    # coordonnées gps de Rennes
     lat, lon = 48.1173, -1.6778
     
     url = "https://archive-api.open-meteo.com/v1/archive"

@@ -11,10 +11,6 @@ from sklearn.metrics import (
     r2_score
 )
  
-# ─────────────────────────────────────────────
-# Constantes
-# ─────────────────────────────────────────────
- 
 FEATURE_COLS = [
     'day_of_week', 'month', 'week_number', 'is_weekend', 'is_holiday',
     'temperature', 'precipitation',
@@ -31,9 +27,6 @@ PARAM_GRID = {
 }
  
  
-# ─────────────────────────────────────────────
-# 1. Feature engineering
-# ─────────────────────────────────────────────
  
 def build_features(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -77,9 +70,6 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
     return df
  
  
-# ─────────────────────────────────────────────
-# 2. Split stratifié par mois
-# ─────────────────────────────────────────────
  
 def stratified_split(df: pd.DataFrame, test_size: float = 0.2, random_state: int = 42):
     """
@@ -131,9 +121,6 @@ def stratified_split(df: pd.DataFrame, test_size: float = 0.2, random_state: int
     return X_train, X_test, y_train_metro, y_test_metro, y_train_bus, y_test_bus, df_test
  
  
-# ─────────────────────────────────────────────
-# 3. Grid search avec TimeSeriesSplit
-# ─────────────────────────────────────────────
  
 def run_grid_search(X_train: pd.DataFrame, y_train: pd.Series,
                     target_name: str) -> GridSearchCV:
@@ -171,10 +158,7 @@ def run_grid_search(X_train: pd.DataFrame, y_train: pd.Series,
     return gs
  
  
-# ─────────────────────────────────────────────
-# 4. Évaluation
-# ─────────────────────────────────────────────
- 
+
 def evaluate_model(model, X_test: pd.DataFrame, y_test: pd.Series,
                    target_name: str, df_test: pd.DataFrame) -> dict:
     """
@@ -204,7 +188,7 @@ def evaluate_model(model, X_test: pd.DataFrame, y_test: pd.Series,
     print(f"  RMSE : {rmse:>12,.0f} voyageurs")
     print(f"  R²   : {r2:>12.4f}")
  
-    # Prédictions vs réelles
+
     fig, ax = plt.subplots(figsize=(14, 4))
     ax.plot(df_test['date'].values, y_test.values,
             label='Réel', color='steelblue', linewidth=1.2)
@@ -216,7 +200,7 @@ def evaluate_model(model, X_test: pd.DataFrame, y_test: pd.Series,
     plt.tight_layout()
     plt.show()
  
-    # Importance des features
+
     best_estimator = model.best_estimator_ if hasattr(model, 'best_estimator_') else model
     importances = pd.Series(
         best_estimator.feature_importances_, index=FEATURE_COLS
@@ -232,9 +216,7 @@ def evaluate_model(model, X_test: pd.DataFrame, y_test: pd.Series,
     return {'MAE': mae, 'RMSE': rmse, 'R2': r2}
  
  
-# ─────────────────────────────────────────────
-# 5. Comparaison des métriques
-# ─────────────────────────────────────────────
+
  
 def compare_metrics(metrics_metro: dict, metrics_bus: dict) -> None:
     """Affiche un tableau récapitulatif des métriques pour les deux modèles."""
@@ -247,10 +229,7 @@ def compare_metrics(metrics_metro: dict, metrics_bus: dict) -> None:
     print(summary.to_string())
  
  
-# ─────────────────────────────────────────────
-# 6. Prédiction
-# ─────────────────────────────────────────────
- 
+
 def predict_frequentation(
     date,
     temperature: float,
@@ -341,7 +320,7 @@ def plot_decision_tree(model, target_name: str, max_depth: int = 3) -> None:
     print(f"Profondeur réelle de l'arbre : {real_depth}")
     print(f"Affichage limité à max_depth={max_depth} pour la lisibilité.")
  
-    # Taille de la figure adaptée à la profondeur affichée
+
     fig_width  = min(40, 5 * 2 ** max_depth)
     fig_height = max(8, 4 * max_depth)
  

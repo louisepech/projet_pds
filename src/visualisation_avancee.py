@@ -7,8 +7,8 @@ def _moving_avg(series, window=7):
     return series.rolling(window, center=True, min_periods=1).mean()
 
 def _carburant_index(df):
-    """Moyenne normalisée des 6 carburants 
-    indice 100 au 1er janvier
+    """Moyenne normalisée des 6 carburants récupérés
+    indice 100 au 1er janvier 2025
     """
     cols = ['E10', 'E85', 'GPLc', 'Gazole', 'SP95', 'SP98']
     avg = df[cols].mean(axis=1)
@@ -40,7 +40,7 @@ def plot_dashboard(df):
 
 def plot_deseasonalized(df):
     """
-    Graphique de la fréquentation désaisonalisé de l'effet semaine
+    Graphique de la fréquentation désaisonnalisé de l'effet semaine
     """
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(14, 7), sharex=True)
     fig.suptitle("Fréquentation : brut vs tendance (MA 7j)", fontsize=13, fontweight='bold')
