@@ -2,8 +2,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import holidays
- 
-from sklearn.tree import DecisionTreeRegressor
+from sklearn.tree import DecisionTreeRegressor, plot_tree  # plot_tree ajouté
+
 from sklearn.model_selection import GridSearchCV, TimeSeriesSplit, train_test_split
 from sklearn.metrics import (
     mean_absolute_error,
@@ -323,3 +323,46 @@ def predict_frequentation(
     print(f"  → {result:,.0f} voyageurs estimés")
  
     return result
+
+def plot_decision_tree(model, target_name: str, max_depth: int = 3) -> None:
+    """
+    Visualise l'arbre de décision entraîné.
+ 
+    Paramètres
+    ----------
+    model       : GridSearchCV fitté contenant le best_estimator_.
+    target_name : Nom de la cible (pour le titre).
+    max_depth   : Profondeur maximale affichée (défaut 3 pour la lisibilité).
+                  Ne tronque pas le modèle, seulement l'affichage.
+    """
+    best_estimator = model.best_estimator_ if hasattr(model, 'best_estimator_') else model
+    real_depth = best_estimator.get_depth()
+ 
+    print(f"Profondeur réelle de l'arbre : {real_depth}")
+    print(f"Affichage limité à max_depth={max_depth} pour la lisibilité.")
+ 
+    # Taille de la figure adaptée à la profondeur affichée
+    fig_width  = min(40, 5 * 2 ** max_depth)
+    fig_height = max(8, 4 * max_depth)
+ 
+    fig, ax = plt.subplots(figsize=(fig_width, fig_height))
+ 
+    plot_tree(
+        best_estimator,
+        max_depth=max_depth,
+        feature_names=FEATURE_COLS,
+        filled=True,
+        rounded=True,
+        fontsize=9,
+        ax=ax,
+        impurity=True,
+        precision=2
+    )
+ 
+    ax.set_title(
+        f'Arbre de décision — {target_name}  '
+        f'(profondeur affichée : {max_depth} / réelle : {real_depth})',
+        fontsize=13, pad=14
+    )
+    plt.tight_layout()
+    plt.show()
