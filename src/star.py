@@ -18,7 +18,6 @@ def get_star_data():
     Lecture du fichier CSV STAR avec 4 colonnes de fréquentation :
     - frequentation_metro    : Régulières Métropolitaines
     - frequentation_bus      : CHRONOSTAR + Régulières Urbaines + METRO 
-    - frequentation_bus_even : Lignes Evènementielles
     - frequentation_pr       : Parcs-Relais
     """
 
@@ -36,7 +35,6 @@ def get_star_data():
         "CHRONOSTAR":                 "frequentation_bus",
         "Régulières Urbaines":        "frequentation_bus",
         "Métro":                      "frequentation_metro",
-        "Lignes Evènementielles":     "frequentation_bus_even",
         "Parcs-Relais":               "frequentation_pr",
     }
 
@@ -57,11 +55,11 @@ def get_star_data():
     df_daily = df_daily.sort_values("date").reset_index(drop=True)
 
     
-    for col in ["frequentation_metro", "frequentation_bus", "frequentation_bus_even", "frequentation_pr"]:
+    for col in ["frequentation_metro", "frequentation_bus", "frequentation_pr"]:
         if col not in df_daily.columns:
             df_daily[col] = 0
 
-    df_daily = df_daily[["date", "frequentation_metro", "frequentation_bus", "frequentation_bus_even", "frequentation_pr"]]
+    df_daily = df_daily[["date", "frequentation_metro", "frequentation_bus", "frequentation_pr"]]
 
     os.makedirs("data", exist_ok=True)
     df_daily.to_csv(clean_path, index=False)
