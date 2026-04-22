@@ -4,3 +4,4 @@ great-tables
 geopandas
 cartiflette
 holidays
+scikit-learn
